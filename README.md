@@ -1,14 +1,12 @@
-= Yew Table
+# Yew Table
 
 A simple table component for the Yew web framework.
 
-NOTE: This crate is still at a very early stage; Enjoy It Responsibly™.
+## Usage
 
-== Usage
+*Use the Table component by setting the `columns` and `data` properties:*
 
-.Use the Table component by setting the `columns` and `data` properties.
-[source,rust]
-----
+```rust
 impl Renderable<Model> for Model {
     fn view(&self) -> Html<Self> {
         // Define the columns. The first string is the field name, the second is the label.
@@ -23,17 +21,17 @@ impl Renderable<Model> for Model {
 
         html! {
             <>
-                // Here, self.tasks is a Vec<Task>
+                // Here, self.tasks is a vector of structs
                 <Table<Task>: columns=columns, data=&self.tasks,/>
             </>
         }
     }
 }
-----
+```
 
-.Implement the TableData trait for the struct to be used.
-[source,rust]
-----
+*Implement the TableData trait for the struct to be used:*
+
+```rust
 #[derive(Default, Clone, PartialEq, Serialize)]
 pub struct Task {
     pub id: String,
@@ -51,12 +49,12 @@ impl TableData for Task {
         }
     }
 }
-----
+```
 
-== Example
+## Example
 
 An example Yew app showing a plain table can be found in the _examples_ folder. Just run the contained `run.sh` script. 
 
-== License
+## License
 
-link:LICENSE[MIT] © 2019 Alexis Luengas
+[MIT](LICENSE) © 2019 Alexis Luengas
