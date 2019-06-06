@@ -11,7 +11,7 @@ web_logger = "0.1"
 smart-default = "0.5.2"
 serde_derive = "1.0.92"
 serde = "1.0.92"
-yew = { git = "https://github.com/DenisKolodin/yew", rev = "792a254acdc84b1419f2c2d6219e933ca7081c07" }
+yew = "0.6.0"
 yew-table = { path = "../.." }
 strum = "0.15.0"
 strum_macros = "0.15.0"

@@ -16,4 +16,4 @@ description = "A table component for the Yew web framework"
 serde = "1"
 serde_derive = "1"
 smart-default = "0.5.2"
-yew = { git = "https://github.com/DenisKolodin/yew", rev = "792a254acdc84b1419f2c2d6219e933ca7081c07" }
+yew = "0.6.0"
