@@ -1,0 +1,61 @@
+= Yew Table
+
+A convenient table component for the Yew web framework.
+
+NOTE: This crate is still in a very early stage, so enjoy it responsibly.
+
+== Usage
+
+.Use the Table component by setting the `columns` and `data` properties.
+[source,rust]
+----
+impl Renderable<Model> for Model {
+    fn view(&self) -> Html<Self> {
+        // Define the columns. The first string is the field name, the second is the label.
+        let columns = columns![
+            ("id", "Id.")
+            ("description", "Description")
+            ("due_date", "Due date")
+            ("status", "Status")
+            ("is_favorite", "Fav.")
+            ("is_archived", "Arch.")
+        ];
+
+        html! {
+            <>
+                <Table<Task>: columns=columns, data=&self.tasks,/>
+            </>
+        }
+    }
+}
+----
+
+.Implement the TableData trait for the struct to be used.
+[source,rust]
+----
+#[derive(Default, Clone, PartialEq, Serialize)]
+pub struct Task {
+    pub id: String,
+    // ...
+}
+
+impl TableData for Task {
+    fn get_field_as_html(&self, field_name: &str) -> Html<Table<Self>> {
+        match field_name {
+            // Define how each field should be rendered. No restrictions.
+            "id" => html! {
+                { &self.id }
+            },
+            // ...
+        }
+    }
+}
+----
+
+=== Example
+
+An example Yew app showing a plain table can be found in the _examples_ folder. Just run the contained `run.sh` script. 
+
+=== License
+
+link:LICENSE[MIT] © 2019 Alexis Luengas
