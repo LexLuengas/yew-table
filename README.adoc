@@ -1,8 +1,8 @@
 = Yew Table
 
-A convenient table component for the Yew web framework.
+A simple table component for the Yew web framework.
 
-NOTE: This crate is still in a very early stage, so enjoy it responsibly.
+NOTE: This crate is still at a very early stage; Enjoy It Responsibly™.
 
 == Usage
 
@@ -23,6 +23,7 @@ impl Renderable<Model> for Model {
 
         html! {
             <>
+                // Here, self.tasks is a Vec<Task>
                 <Table<Task>: columns=columns, data=&self.tasks,/>
             </>
         }
@@ -52,10 +53,10 @@ impl TableData for Task {
 }
 ----
 
-=== Example
+== Example
 
 An example Yew app showing a plain table can be found in the _examples_ folder. Just run the contained `run.sh` script. 
 
-=== License
+== License
 
 link:LICENSE[MIT] © 2019 Alexis Luengas
