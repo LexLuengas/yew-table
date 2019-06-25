@@ -57,7 +57,7 @@ impl Renderable<Model> for Model {
         ];
 
         let options = TableOptions {
-            orderable: false,
+            orderable: true,
         };
 
         html! {

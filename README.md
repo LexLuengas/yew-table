@@ -4,7 +4,7 @@ A simple table component for the Yew web framework.
 
 ## Usage
 
-*Use the Table component by setting the `columns` and `data` properties:*
+*Use the Table component by setting the `columns`, `data` and `options` properties:*
 
 ```rust
 impl Renderable<Model> for Model {
@@ -15,14 +15,18 @@ impl Renderable<Model> for Model {
             ("description", "Description")
             ("due_date", "Due date")
             ("status", "Status")
-            ("is_favorite", "Fav.")
-            ("is_archived", "Arch.")
+            ("is_favorite", "Favorite", "Fav.")
+            ("is_archived", "Archived", "Arch.")
         ];
+
+        let options = TableOptions {
+            orderable: true,
+        };
 
         html! {
             <>
                 // Here, self.tasks is a vector of structs
-                <Table<Task>: columns=columns, data=&self.tasks,/>
+                <Table<Task>: columns=columns, data=&self.tasks, options=Some(options),/>
             </>
         }
     }
@@ -47,6 +51,15 @@ impl TableData for Task {
             },
             // ...
         }
+    }
+
+    fn get_field_as_value(&self, field_name: &str) -> TableResult<Value> {
+        let value = match field_name {
+            // Provide a processed version of your value. Keep the computation cheap! 
+            "id" => serde_value::to_value(&self.id),
+            // ...
+        };
+        Ok(value.unwrap())
     }
 }
 ```
