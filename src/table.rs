@@ -2,7 +2,6 @@ use yew::Html;
 use serde::{Serialize};
 use serde_value::Value;
 use std::fmt;
-use smart_default::SmartDefault;
 use crate::error::*;
 
 pub trait TableData: 'static + Default + Clone + Ord + Serialize {
@@ -26,17 +25,20 @@ impl fmt::Display for Column {
     }
 }
 
-#[derive(Clone, PartialEq, SmartDefault)]
+#[derive(Clone, PartialEq)]
 pub struct TableOptions {
     pub orderable: bool,
 }
 
-#[derive(Copy, Clone, PartialEq, SmartDefault)]
+#[derive(Copy, Clone, PartialEq)]
 pub enum TableOrder {
-    #[default]
     Unordered = 0,
-    Ascending = 1,
-    Descending = 2,
+    Ascending,
+    Descending,
+}
+
+impl Default for TableOrder {
+    fn default() -> Self { TableOrder::Unordered }
 }
 
 impl TableOrder {

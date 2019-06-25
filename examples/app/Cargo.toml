@@ -1,6 +1,6 @@
 [package]
 name = "yew-app"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Alexis Luengas <alexis.luengas@gmail.com>"]
 edition = "2018"
 
@@ -9,12 +9,12 @@ log = "0.4"
 chrono = { version = "0.4", features = ["serde"] }
 web_logger = "0.1"
 smart-default = "0.5.2"
-serde = { version = "1.0.92", features = ["derive"] }
-yew = "0.6.0"
-yew-table = { path = "../.." }
+serde = { version = "1.0.93", features = ["derive"] }
 strum = "0.15.0"
 strum_macros = "0.15.0"
 serde-value = "0.6.0"
+yew = "0.6.0"
+yew-table = { path = "../.." }
 
 [dependencies.rand]
 version = "0.6.5"

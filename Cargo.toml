@@ -13,7 +13,6 @@ categories = ["gui", "web-programming"]
 description = "A table component for the Yew web framework"
 
 [dependencies]
-serde = { version = "1.0.92", features = ["derive"] }
-smart-default = "0.5.2"
-yew = "0.6.0"
+serde = { version = "1.0.93", features = ["derive"] }
 serde-value = "0.6.0"
+yew = "0.6.0"
