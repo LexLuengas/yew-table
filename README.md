@@ -55,6 +55,13 @@ impl TableData for Task {
 
 An example Yew app showing a plain table can be found in the _examples_ folder. Just run the contained `run.sh` script. 
 
+## To-dos
+
+- [x] Add sortability
+- [ ] Add searchability
+- [ ] Improve accessibility
+- [ ] Add pagination
+
 ## License
 
 [MIT](LICENSE) © 2019 Alexis Luengas

@@ -1,27 +1,24 @@
 use chrono::prelude::*;
-use serde_derive::{Deserialize, Serialize};
+use serde::Serialize;
+use serde_value::Value;
 use smart_default::SmartDefault;
-use strum_macros::EnumIter;
-use std::fmt;
+use strum_macros::{EnumIter, ToString};
 use yew::html;
 use yew::prelude::*;
-use yew_table::{Table, TableData};
+use yew_table::{Table, TableData, TableError, Result as TableResult};
 
-#[derive(SmartDefault, Clone, PartialEq, Debug, Serialize, Deserialize, EnumIter)]
+#[derive(
+    Clone, PartialOrd, Eq, PartialEq, Ord, 
+    Serialize, EnumIter, ToString, SmartDefault)]
+#[strum(serialize_all = "snake_case")]
 pub enum TaskStatus {
     #[default]
-    Open,
-    Paused,
-    Closed,
+    Open = 0,
+    Paused = 1,
+    Closed = 2,
 }
 
-impl fmt::Display for TaskStatus {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
-
-#[derive(Default, Clone, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(Default, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize)]
 pub struct Task {
     pub id: String,
     pub description: String,
@@ -35,13 +32,13 @@ pub struct Task {
 }
 
 impl TableData for Task {
-    fn get_field_as_html(&self, field_name: &str) -> Html<Table<Self>> {
-        match field_name {
+    fn get_field_as_html(&self, field_name: &str) -> TableResult<Html<Table<Self>>> {
+        let html_repr = match field_name {
             "id" => html! {
                 { &self.id }
             },
             "description" => html! {
-                { self.description.clone() }
+                { &self.description }
             },
             "status" => html! {
                 { self.status.to_string() }
@@ -62,7 +59,26 @@ impl TableData for Task {
             "is_archived" => html! {
                 <input type="checkbox", checked=self.is_archived,/>
             },
-            n => panic!("HTML representation of field name '{}' does not exist", n),
-        }
+            n => return Err(TableError::NonRenderableField(n.to_owned())),
+        };
+        Ok(html_repr)
+    }
+
+    fn get_field_as_value(&self, field_name: &str) -> TableResult<Value> {
+        let value = match field_name {
+            "id" => serde_value::to_value(
+                &self.id
+                    .chars().skip(5).collect::<String>() // omit prefix "task-"
+                    .parse::<i32>().unwrap() // parse the number as integer
+            ),
+            "description" => serde_value::to_value(&self.description),
+            "status" => serde_value::to_value(self.status.to_string()),
+            "due_date" => serde_value::to_value(self.due_date.map_or(0, |d| d.timestamp())),
+            "progress" => serde_value::to_value(self.progress),
+            "is_favorite" => serde_value::to_value(self.is_favorite),
+            "is_archived" => serde_value::to_value(self.is_archived),
+            n => return Err(TableError::InvalidFieldName(n.to_owned())),
+        };
+        Ok(value.unwrap())
     }
 }
