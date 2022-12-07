@@ -1,6 +1,6 @@
 [package]
 name = "yew-table"
-version = "0.1.2"
+version = "0.2.0"
 authors = ["Alexis Luengas <alexis.luengas@gmail.com>"]
 edition = "2018"
 repository = "https://github.com/LexLuengas/yew-table"
@@ -14,5 +14,5 @@ description = "A table component for the Yew web framework"
 
 [dependencies]
 serde = { version = "1.0.93", features = ["derive"] }
-serde-value = "0.6.0"
-yew = "0.6.0"
+serde-value = "0.7.0"
+yew = "0.20.0"

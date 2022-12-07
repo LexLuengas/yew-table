@@ -1,12 +1,9 @@
 #![recursion_limit = "128"]
 
 use log::info;
-use rand::seq::SliceRandom;
 use yew::html;
 use yew::prelude::*;
-use yew_table::{columns, Table, TableOptions};
-use rand::Rng;
-use strum::IntoEnumIterator;
+use yew_table::{columns, Table};
 use yew_app::task::*;
 use chrono::prelude::*;
 
@@ -15,61 +12,57 @@ struct Model {
 }
 
 fn create_mock_tasks() -> Vec<Task> {
-    let mut rng = rand::thread_rng();
-    let task_statuses = TaskStatus::iter().collect::<Vec<_>>();;
-    (0..100)
-        .map(|i| Task {
+    let mut favorite = false;
+    let mut archived = true;
+    (0..100).map(|i| {
+        favorite = !favorite;
+        archived = !archived;
+        Task {
             id: format!("task-{}", i + 1),
             description: String::from("These are not the Lorem Ipsums you are looking for"),
-            due_date: Some(Utc.ymd(2014, (i % 12) + 1, 8).and_hms(12, 0, 9)),
-            status: task_statuses.choose(&mut rng).unwrap().to_owned(),
-            is_favorite: rng.gen(),
-            is_archived: rng.gen(),
+            due_date: Some(Utc.with_ymd_and_hms(2014, (i % 12) + 1, 8, 12, 0, 9).unwrap()),
+            status: TaskStatus::Open,
+            is_favorite: favorite,
+            is_archived: archived,
             ..Task::default()
-        })
-        .collect()
+        }
+    }).collect()
 }
 
 impl Component for Model {
     type Message = ();
     type Properties = ();
 
-    fn create(_props: Self::Properties, _link: ComponentLink<Self>) -> Self {
+    fn create(_ctx: &Context<Self>) -> Self {
         Model {
             tasks: create_mock_tasks()
         }
     }
 
-    fn update(&mut self, _msg: Self::Message) -> ShouldRender {
+    fn update(&mut self, _ctx: &Context<Self>, _msg: Self::Message) -> bool {
         true
     }
-}
 
-impl Renderable<Model> for Model {
-    fn view(&self) -> Html<Self> {
+    fn view(&self, _ctx: &Context<Self>) -> Html {
         let columns = columns![
-            ("id", "Id.")
-            ("description", "Description")
-            ("due_date", "Due date")
-            ("status", "Status")
-            ("is_favorite", "Favorite", "Fav.")
-            ("is_archived", "Archived", "Arch.")
+            ("id", "Id.", "Id.", true)
+            ("description", "Description", "Description", true)
+            ("due_date", "Due date", "Due date", true)
+            ("status", "Status", "Status", true)
+            ("is_favorite", "Favorite", "Fav.", true)
+            ("is_archived", "Archived", "Arch.", true)
         ];
-
-        let options = TableOptions {
-            orderable: true,
-        };
 
         html! {
             <>
-                <Table<Task>: columns=columns, data=&self.tasks, options=Some(options),/>
+                <Table<Task> classes={classes!("yew-table")} {columns} data={self.tasks.clone()} orderable={true}/>
             </>
         }
     }
 }
 
 fn main() {
-    web_logger::init();
+    wasm_logger::init(wasm_logger::Config::new(log::Level::Trace));
     info!("Starting SPA");
-    yew::start_app::<Model>();
+    yew::Renderer::<Model>::new().render();
 }

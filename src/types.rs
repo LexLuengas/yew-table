@@ -1,22 +1,30 @@
-use yew::Html;
-use serde::{Serialize};
+use super::error::Result;
+use serde::Serialize;
 use serde_value::Value;
 use std::fmt;
-use crate::error::*;
+use yew::Html;
 
 pub trait TableData: 'static + Default + Clone + Ord + Serialize {
     /// Returns the Html representation of a field. When None, the field is not rendered.
-    fn get_field_as_html(&self, field_name: &str) -> Result<Html<Table<Self>>>;
+    /// # Errors
+    /// Fails if unknown field is provided
+    fn get_field_as_html(&self, field_name: &str) -> Result<Html>;
 
     /// Returns a table value given its field name. This value is used as a sorting key for the corresponding column.
+    /// # Errors
+    /// Fails if unknown field is provided
     fn get_field_as_value(&self, field_name: &str) -> Result<Value>;
+
+    /// Returns true if a row matches search value(needle)
+    fn matches_search(&self, needle: Option<String>) -> bool;
 }
 
-#[derive(Clone, PartialEq, Default, Debug)]
+#[derive(Clone, Eq, PartialEq, Default, Debug)]
 pub struct Column {
     pub name: String,
     pub short_name: Option<String>,
     pub data_property: Option<String>,
+    pub orderable: bool,
 }
 
 impl fmt::Display for Column {
@@ -25,12 +33,7 @@ impl fmt::Display for Column {
     }
 }
 
-#[derive(Clone, PartialEq)]
-pub struct TableOptions {
-    pub orderable: bool,
-}
-
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, Eq, PartialEq)]
 pub enum TableOrder {
     Unordered = 0,
     Ascending,
@@ -38,13 +41,16 @@ pub enum TableOrder {
 }
 
 impl Default for TableOrder {
-    fn default() -> Self { TableOrder::Unordered }
+    fn default() -> Self {
+        Self::Unordered
+    }
 }
 
 impl TableOrder {
-    pub fn rotate(&self) -> Self {
-        use TableOrder::*;
-        match *self {
+    #[must_use]
+    pub const fn rotate(self) -> Self {
+        use TableOrder::{Ascending, Descending, Unordered};
+        match self {
             Unordered => Ascending,
             Ascending => Descending,
             Descending => Unordered,
@@ -52,27 +58,20 @@ impl TableOrder {
     }
 }
 
-#[derive(Clone, PartialEq, Default)]
+#[derive(Clone, Eq, PartialEq, Default)]
 pub struct TableState {
     pub order: Vec<TableOrder>,
 }
 
 /// The a table with columns holding data.
-#[derive(Clone, PartialEq, Default)]
-pub struct Table<T> where T: TableData {
+#[derive(Clone, Eq, PartialEq, Default)]
+pub struct Table<T>
+    where
+        T: TableData,
+{
     /// The order of the columns determines the order in which they are displayed.
-    pub (crate) columns: Vec<Column>,
-    pub (crate) data: Vec<T>,
-    pub (crate) options: Option<TableOptions>,
-    pub (crate) state: TableState,
-}
-
-impl<T> Table<T> where T: TableData {
-    pub fn is_orderable(&self) -> bool {
-        if let Some(options) = &self.options {
-            options.orderable
-        } else {
-            false
-        }
-    }
+    pub columns: Vec<Column>,
+    pub data: Vec<T>,
+    pub state: TableState,
+    pub orderable: bool,
 }
