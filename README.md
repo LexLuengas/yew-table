@@ -71,7 +71,7 @@ An example Yew app showing a plain table can be found in the _examples_ folder. 
 ## To-dos
 
 - [x] Add sortability
-- [ ] Add searchability
+- [x] Add searchability
 - [ ] Improve accessibility
 - [ ] Add pagination
 

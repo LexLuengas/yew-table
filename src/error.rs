@@ -1,10 +1,15 @@
+//! Data Errors
+
 use std::error;
 use std::fmt;
 
+/// Data errors
 #[derive(Debug)]
 #[allow(dead_code)]
 pub enum Error {
+    /// The field does not have render implementation
     NonRenderableField(String),
+    /// Invalid field name provided
     InvalidFieldName(String),
 }
 
@@ -36,4 +41,5 @@ impl error::Error for Error {
     }
 }
 
+/// Result type symplification
 pub type Result<T> = std::result::Result<T, Error>;

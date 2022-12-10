@@ -1,7 +1,22 @@
+//! Implementation of the yew component
+
 use std::cmp::Reverse;
 use yew::html;
 use yew::prelude::*;
 use crate::{Column, Table, TableData, TableOrder, TableState};
+
+/// Table options
+#[derive(Clone, Eq, PartialEq, Default)]
+pub struct TableOptions {
+    /// Class for unordered column image
+    pub unordered_class: Option<String>,
+    /// Class for ascending column image
+    pub ascending_class: Option<String>,
+    /// Class for descending column image
+    pub descending_class: Option<String>,
+    /// Additional classes for the orderable image
+    pub orderable_classes: Vec<String>,
+}
 
 /// Properties of the Table component.
 #[derive(Properties, Clone, Eq, PartialEq, Default)]
@@ -9,18 +24,25 @@ pub struct Props<T>
     where
         T: TableData,
 {
+    /// Table columns
     pub columns: Vec<Column>,
+    /// Table data
     pub data: Vec<T>,
-    #[prop_or(false)]
-    pub orderable: bool,
+    /// Table classes
     #[prop_or_default]
     pub classes: Classes,
+    /// Search string for data filtering
     #[prop_or_default]
     pub search: Option<String>,
+    /// Table options
+    #[prop_or_default]
+    pub options: TableOptions,
 }
 
+/// Yew component messaging enum
 #[derive(Debug)]
 pub enum Msg {
+    /// Sort message
     SortColumn(usize),
 }
 
@@ -37,7 +59,6 @@ impl<T> Component for Table<T>
         Self {
             columns: props.columns.clone(),
             data: props.data.clone(),
-            orderable: props.orderable,
             state: TableState {
                 order: vec![TableOrder::default(); column_number],
             },
@@ -85,17 +106,8 @@ impl<T> Component for Table<T>
     fn view(&self, ctx: &Context<Self>) -> Html {
         let search = ctx.props().search.clone();
         let classes = ctx.props().classes.clone();
-
-        let get_orderable_class = || {
-            if self.orderable {
-                "is-orderable"
-            } else {
-                ""
-            }
-        };
-
-        html! (
-            <table class={classes!(classes, get_orderable_class())}>
+        html!(
+            <table class={classes!(classes)}>
                 <thead>
                     { for self.columns.iter().enumerate().map(|(i, col)| self.view_column(ctx, i, col)) }
                 </thead>
@@ -114,28 +126,27 @@ impl<T> Table<T>
     fn view_column<'a>(&'a self, ctx: &Context<Self>, index: usize, column: &'a Column) -> Html {
         let get_header_sorting_class = |index: usize| {
             use TableOrder::{Ascending, Descending, Unordered};
-            self.state.order.get(index).map_or("", |order| match order {
-                Unordered => "",
-                Ascending => "is-sorting-ascending",
-                Descending => "is-sorting-descending",
+
+            self.state.order.get(index).and_then(|order| match order {
+                Unordered => ctx.props().options.unordered_class.clone(),
+                Ascending => ctx.props().options.ascending_class.clone(),
+                Descending => ctx.props().options.descending_class.clone(),
             })
         };
 
         let th_view = |child| {
-            if self.orderable && column.orderable {
-                html! ( <th scope="col" onclick={ctx.link().callback(move |_| Msg::SortColumn(index))}>{ child }</th> )
+            if column.orderable {
+                html!( <th class={classes!(column.header_classes.clone())} scope="col" onclick={ctx.link().callback(move |_| Msg::SortColumn(index))}>{ child }</th> )
             } else {
-                html! ( <th scope="col">{ child }</th> )
+                html!( <th class={classes!(column.header_classes.clone())} scope="col">{ child }</th> )
             }
         };
 
         th_view(html!(
                 <span>
-                    <abbr title={column.name.clone()}>
-                        { column }
-                    </abbr>
-                    if self.orderable && column.orderable {
-                        <i class={classes!("sorting-control", get_header_sorting_class(index))}></i>
+                    { column }
+                    if column.orderable {
+                        <i class={classes!(ctx.props().options.orderable_classes.clone(), get_header_sorting_class(index))} />
                     }
                 </span>
         ))

@@ -1,3 +1,9 @@
+#![deny(missing_docs)]
+//! # yew-table
+//!
+//! A simple table component for the Yew web framework.
+
+#[doc(hidden)]
 #[macro_use]
 pub mod macros;
 pub mod types;

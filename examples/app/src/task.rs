@@ -59,10 +59,10 @@ impl TableData for Task {
                 { self.progress.to_string() + "%" }
             },
             "is_favorite" => html! {
-                <input type="checkbox" checked={self.is_favorite}/>
+                <input type="checkbox" checked={self.is_favorite} disabled={true}/>
             },
             "is_archived" => html! {
-                <input type="checkbox" checked={self.is_archived}/>
+                <input type="checkbox" checked={self.is_archived} disabled={true}/>
             },
             n => return Err(Error::NonRenderableField(n.to_owned())),
         };

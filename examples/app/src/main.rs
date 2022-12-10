@@ -3,7 +3,7 @@
 use log::info;
 use yew::html;
 use yew::prelude::*;
-use yew_table::{columns, Table};
+use yew_table::{columns, Table, TableOptions};
 use yew_app::task::*;
 use chrono::prelude::*;
 
@@ -53,9 +53,16 @@ impl Component for Model {
             ("is_archived", "Archived", "Arch.", true)
         ];
 
+        let options = TableOptions {
+            unordered_class: None,
+            ascending_class: Some("is-sorting-ascending".to_string()),
+            descending_class: Some("is-sorting-descending".to_string()),
+            orderable_classes: vec!["sorting-control".to_string()],
+        };
+
         html! {
             <>
-                <Table<Task> classes={classes!("yew-table")} {columns} data={self.tasks.clone()} orderable={true}/>
+                <Table<Task> {options} classes={classes!("yew-table", "is-orderable")} {columns} data={self.tasks.clone()}/>
             </>
         }
     }
