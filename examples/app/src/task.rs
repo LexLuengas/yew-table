@@ -2,20 +2,25 @@ use chrono::prelude::*;
 use serde::Serialize;
 use serde_value::Value;
 use smart_default::SmartDefault;
-use strum_macros::{EnumIter, ToString};
+use strum_macros::{EnumIter};
 use yew::html;
 use yew::prelude::*;
-use yew_table::{Table, TableData, TableError, Result as TableResult};
+use yew_table::{TableData, Error, Result as TableResult};
 
-#[derive(
-    Clone, PartialOrd, Eq, PartialEq, Ord, 
-    Serialize, EnumIter, ToString, SmartDefault)]
+#[derive(Clone, PartialOrd, Eq, PartialEq, Ord,
+Serialize, EnumIter, Debug, SmartDefault)]
 #[strum(serialize_all = "snake_case")]
 pub enum TaskStatus {
     #[default]
     Open = 0,
     Paused = 1,
     Closed = 2,
+}
+
+impl std::fmt::Display for TaskStatus {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
 }
 
 #[derive(Default, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize)]
@@ -32,7 +37,7 @@ pub struct Task {
 }
 
 impl TableData for Task {
-    fn get_field_as_html(&self, field_name: &str) -> TableResult<Html<Table<Self>>> {
+    fn get_field_as_html(&self, field_name: &str) -> TableResult<Html> {
         let html_repr = match field_name {
             "id" => html! {
                 { &self.id }
@@ -54,12 +59,12 @@ impl TableData for Task {
                 { self.progress.to_string() + "%" }
             },
             "is_favorite" => html! {
-                <input type="checkbox", checked=self.is_favorite,/>
+                <input type="checkbox" checked={self.is_favorite} disabled={true}/>
             },
             "is_archived" => html! {
-                <input type="checkbox", checked=self.is_archived,/>
+                <input type="checkbox" checked={self.is_archived} disabled={true}/>
             },
-            n => return Err(TableError::NonRenderableField(n.to_owned())),
+            n => return Err(Error::NonRenderableField(n.to_owned())),
         };
         Ok(html_repr)
     }
@@ -67,9 +72,7 @@ impl TableData for Task {
     fn get_field_as_value(&self, field_name: &str) -> TableResult<Value> {
         let value = match field_name {
             "id" => serde_value::to_value(
-                &self.id
-                    .chars().skip(5).collect::<String>() // omit prefix "task-"
-                    .parse::<i32>().unwrap() // parse the number as integer
+                &self.id.chars().skip(5).collect::<String>() // omit prefix "task-".parse::<i32>().unwrap() // parse the number as integer
             ),
             "description" => serde_value::to_value(&self.description),
             "status" => serde_value::to_value(self.status.to_string()),
@@ -77,8 +80,17 @@ impl TableData for Task {
             "progress" => serde_value::to_value(self.progress),
             "is_favorite" => serde_value::to_value(self.is_favorite),
             "is_archived" => serde_value::to_value(self.is_archived),
-            n => return Err(TableError::InvalidFieldName(n.to_owned())),
+            n => return Err(Error::InvalidFieldName(n.to_owned())),
         };
         Ok(value.unwrap())
+    }
+
+    fn matches_search(&self, needle: Option<String>) -> bool {
+        match needle {
+            None => { true }
+            Some(search) => {
+                self.description.to_lowercase().contains(&search.to_lowercase())
+            }
+        }
     }
 }
